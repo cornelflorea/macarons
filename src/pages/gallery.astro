@@ -1,0 +1,25 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+<Layout title="Gallery | Dulce Macaron by Diana">
+  <h1>Gallery</h1>
+  <p>Visit our kitchen:</p>
+  <div class="gallery">
+    <img src="/diana_kitchen_roons.jpeg" alt="Diana in her kitchen with macarons" loading="lazy" />
+    <img src="/roons_kitchen.jpeg" alt="Macarons in the kitchen" loading="lazy" />
+    <img src="/macarons.jpg" alt="Assorted macarons box" loading="lazy" />
+  </div>
+</Layout>
+
+<style>
+  .gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+  }
+  .gallery img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+  }
+</style>
