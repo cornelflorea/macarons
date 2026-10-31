@@ -1,8 +1,120 @@
 ---
+import { Image } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
+import macarons from '../assets/macarons.jpg';
 ---
 <Layout title="Dulce Macaron by Diana">
-  <h1>Dulce Macaron by Diana</h1>
-  <p>Macarons caseros, hechos con el corazon.</p>
-  <img src="/macarons.jpg" alt="Handmade macarons by Diana" />
+  <section class="hero">
+    <Image
+      class="hero-image"
+      src={macarons}
+      alt="Macarons caseros hechos a mano por Diana"
+      widths={[800, 1280, 1920]}
+      sizes="(max-width: 940px) 100vw, 900px"
+      loading="eager"
+      fetchpriority="high"
+    />
+    <div class="overlay">
+      <p class="eyebrow">Hecho a mano · Por encargo</p>
+      <h1>Dulce Macaron <span>by Diana</span></h1>
+      <p class="tagline">Macarons caseros, hechos con el corazón.</p>
+      <div class="actions">
+        <a class="btn primary" href="/contact">Haz tu pedido</a>
+        <a class="btn secondary" href="/menu">Ver menú</a>
+      </div>
+    </div>
+  </section>
 </Layout>
+
+<style>
+  .hero {
+    min-height: 70vh;
+    border-radius: 24px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    box-shadow: 0 20px 50px rgba(139, 79, 92, 0.25);
+    overflow: hidden;
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(74, 40, 52, 0.75), rgba(74, 40, 52, 0.15) 60%);
+  }
+  .hero .hero-image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 0;
+    transition: transform 8s ease;
+  }
+  .hero:hover .hero-image {
+    transform: scale(1.05);
+  }
+  .overlay {
+    position: relative;
+    z-index: 1;
+    padding: 3rem 1.5rem;
+    color: #fff;
+    max-width: 640px;
+  }
+  .eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 0.8rem;
+    margin: 0 0 1rem;
+    opacity: 0.9;
+  }
+  .hero h1 {
+    font-size: clamp(2.2rem, 6vw, 3.8rem);
+    line-height: 1.1;
+    margin: 0 0 1rem;
+    color: #fff;
+  }
+  .hero h1 span {
+    display: block;
+    font-style: italic;
+    font-weight: 600;
+    color: #06a489;
+  }
+  .tagline {
+    font-size: 1.2rem;
+    margin: 0 0 2rem;
+  }
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    justify-content: center;
+  }
+  .btn {
+    padding: 0.8rem 1.8rem;
+    border-radius: 999px;
+    text-decoration: none;
+    font-size: 1rem;
+    transition: transform 0.2s ease, background 0.2s ease;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+  .primary {
+    background: #f7c8d2;
+    color: #4a2834;
+  }
+  .primary:hover {
+    background: #fbd9e0;
+  }
+  .secondary {
+    border: 2px solid #fff;
+    color: #fff;
+  }
+  .secondary:hover {
+    background: rgba(255, 255, 255, 0.15);
+  }
+</style>

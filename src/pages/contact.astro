@@ -1,9 +1,198 @@
 ---
 import Layout from '../layouts/Layout.astro';
+
+const whatsappNumber = '34615063883';
+const flavors = ['Pistacho', 'Frambuesa', 'Chocolate', 'Vainilla'];
+const products = [
+  'Macarons sueltos (4 € / unidad)',
+  'Caja de 6 macarons (20 €)',
+  'Caja de 12 macarons (40 €)',
+  'Tiramisú (bajo pedido)',
+  'Pavlova (bajo pedido)',
+];
 ---
-<Layout title="Contact with DulceMacaron">
-  <h1>Contact</h1>
-  <p>Contact phone:</p>
-  <p>Contact email:</p>
-  <p>Location:</p>
+<Layout title="Contacto | Dulce Macaron by Diana">
+  <h1>Contacto</h1>
+  <p>Todos nuestros dulces se hacen por encargo. Escríbenos o rellena el formulario para hacer tu pedido.</p>
+
+  <div class="quick">
+    <a class="btn whatsapp" href={`https://wa.me/${whatsappNumber}?text=Hola%2C%20quiero%20hacer%20un%20pedido`}>Pedir por WhatsApp</a>
+    <a class="btn instagram" href="https://instagram.com/dulce.macaron__">Instagram @dulce.macaron__</a>
+  </div>
+
+  <p class="details">
+    <a href="tel:+34615063883">615 06 38 83</a> ·
+    <a href="mailto:dulcemacaron.es@gmail.com">dulcemacaron.es@gmail.com</a> ·
+    Barcelona
+  </p>
+
+  <h2>Haz tu pedido</h2>
+  <form id="order-form" data-number={whatsappNumber}>
+    <label>
+      Nombre
+      <input type="text" name="name" required autocomplete="name" />
+    </label>
+
+    <label>
+      Producto
+      <select name="product" required>
+        {products.map((product) => <option value={product}>{product}</option>)}
+      </select>
+    </label>
+
+    <fieldset>
+      <legend>Sabores</legend>
+      {flavors.map((flavor) => (
+        <label class="check">
+          <input type="checkbox" name="flavors" value={flavor} />
+          {flavor}
+        </label>
+      ))}
+    </fieldset>
+
+    <label>
+      Cantidad
+      <input type="number" name="quantity" min="1" value="1" required />
+    </label>
+
+    <label>
+      Fecha de entrega deseada
+      <input type="date" name="date" />
+    </label>
+
+    <label>
+      Notas (alergias, decoración, etc.)
+      <textarea name="notes" rows="4"></textarea>
+    </label>
+
+    <button type="submit" class="btn whatsapp">Enviar pedido por WhatsApp</button>
+    <p class="hint">Se abrirá WhatsApp con tu pedido listo para enviar. Te confirmaremos precio y disponibilidad.</p>
+  </form>
 </Layout>
+
+<script>
+  const form = document.querySelector<HTMLFormElement>('#order-form');
+  const dateInput = form?.querySelector<HTMLInputElement>('input[name="date"]');
+  if (dateInput) dateInput.min = new Date().toISOString().split('T')[0];
+
+  form?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const data = new FormData(form);
+    const flavors = data.getAll('flavors').join(', ');
+    const date = data.get('date');
+
+    const lines = [
+      'Hola, quiero hacer un pedido:',
+      `Nombre: ${data.get('name')}`,
+      `Producto: ${data.get('product')}`,
+      `Cantidad: ${data.get('quantity')}`,
+    ];
+    if (flavors) lines.push(`Sabores: ${flavors}`);
+    if (date) lines.push(`Fecha deseada: ${date}`);
+    if (data.get('notes')) lines.push(`Notas: ${data.get('notes')}`);
+
+    const url = `https://wa.me/${form.dataset.number}?text=${encodeURIComponent(lines.join('\n'))}`;
+    window.open(url, '_blank', 'noopener');
+  });
+</script>
+
+<style>
+  a {
+    color: var(--raspberry);
+  }
+  .quick {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+  .btn {
+    display: inline-block;
+    padding: 0.8rem 1.8rem;
+    border: 0;
+    border-radius: 999px;
+    font: inherit;
+    color: #fff;
+    text-decoration: none;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+  }
+  .whatsapp {
+    background: var(--pistachio-dark);
+  }
+  .instagram {
+    background: var(--raspberry);
+  }
+  .details {
+    margin-bottom: 3rem;
+  }
+  form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    max-width: 520px;
+    margin: 1.5rem auto 0;
+    padding: 2rem 1.5rem;
+    text-align: left;
+    background: #fff;
+    border: 1px solid var(--vanilla-deep);
+    border-radius: 20px;
+    box-shadow: 0 6px 18px rgba(139, 42, 71, 0.08);
+  }
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    font-weight: 500;
+  }
+  input[type='text'],
+  input[type='number'],
+  input[type='date'],
+  select,
+  textarea {
+    padding: 0.7rem 0.9rem;
+    border: 1px solid var(--vanilla-deep);
+    border-radius: 10px;
+    background: var(--vanilla);
+    color: var(--cocoa);
+    font: inherit;
+  }
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--pistachio-dark);
+    outline-offset: 1px;
+  }
+  fieldset {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    margin: 0;
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--vanilla-deep);
+    border-radius: 10px;
+  }
+  legend {
+    padding: 0 0.4rem;
+    font-weight: 500;
+  }
+  .check {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 400;
+  }
+  form .btn {
+    align-self: center;
+  }
+  .hint {
+    margin: 0;
+    font-size: 0.85rem;
+    text-align: center;
+    opacity: 0.8;
+  }
+</style>

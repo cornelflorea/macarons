@@ -1,25 +1,173 @@
 ---
+import { Image, getImage } from 'astro:assets';
 import Layout from '../layouts/Layout.astro';
+import dianaKitchen from '../assets/diana_kitchen_roons.jpeg';
+import roonsKitchen from '../assets/roons_kitchen.jpeg';
+import macarons from '../assets/macarons.jpg';
+
+const photoList = [
+  { image: dianaKitchen, alt: 'Diana en su cocina con macarons' },
+  { image: roonsKitchen, alt: 'Macarons en la cocina' },
+  { image: macarons, alt: 'Caja de macarons surtidos' },
+];
+
+// larger WebP version shown in the lightbox
+const photos = await Promise.all(
+  photoList.map(async (photo) => ({
+    ...photo,
+    full: (await getImage({ src: photo.image, width: 1600, format: 'webp' })).src,
+  }))
+);
 ---
-<Layout title="Gallery | Dulce Macaron by Diana">
-  <h1>Gallery</h1>
-  <p>Visit our kitchen:</p>
+<Layout title="Galería | Dulce Macaron by Diana">
+  <h1>Galería</h1>
+  <p>Visita nuestra cocina:</p>
+
   <div class="gallery">
-    <img src="/diana_kitchen_roons.jpeg" alt="Diana in her kitchen with macarons" loading="lazy" />
-    <img src="/roons_kitchen.jpeg" alt="Macarons in the kitchen" loading="lazy" />
-    <img src="/macarons.jpg" alt="Assorted macarons box" loading="lazy" />
+    {photos.map((photo) => (
+      <button class="thumb" type="button" data-src={photo.full} data-alt={photo.alt} aria-label={`Ampliar: ${photo.alt}`}>
+        <Image
+          src={photo.image}
+          alt={photo.alt}
+          widths={[400, 800]}
+          sizes="(max-width: 700px) 100vw, 300px"
+          loading="lazy"
+        />
+      </button>
+    ))}
   </div>
+
+  <dialog class="lightbox" aria-label="Foto ampliada">
+    <button class="close" type="button" aria-label="Cerrar">&times;</button>
+    <button class="nav prev" type="button" aria-label="Foto anterior">&#8249;</button>
+    <img alt="" />
+    <button class="nav next" type="button" aria-label="Foto siguiente">&#8250;</button>
+  </dialog>
 </Layout>
+
+<script>
+  const thumbs = Array.from(document.querySelectorAll<HTMLButtonElement>('.thumb'));
+  const lightbox = document.querySelector<HTMLDialogElement>('.lightbox');
+  const bigImage = lightbox?.querySelector('img');
+  let current = 0;
+
+  function show(index: number) {
+    if (!bigImage) return;
+    current = (index + thumbs.length) % thumbs.length;
+    bigImage.src = thumbs[current].dataset.src ?? '';
+    bigImage.alt = thumbs[current].dataset.alt ?? '';
+  }
+
+  thumbs.forEach((thumb, index) => {
+    thumb.addEventListener('click', () => {
+      show(index);
+      lightbox?.showModal();
+    });
+  });
+
+  lightbox?.querySelector('.close')?.addEventListener('click', () => lightbox.close());
+  lightbox?.querySelector('.prev')?.addEventListener('click', () => show(current - 1));
+  lightbox?.querySelector('.next')?.addEventListener('click', () => show(current + 1));
+
+  // click on the dark backdrop closes it
+  lightbox?.addEventListener('click', (event) => {
+    if (event.target === lightbox) lightbox.close();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (!lightbox?.open) return;
+    if (event.key === 'ArrowLeft') show(current - 1);
+    if (event.key === 'ArrowRight') show(current + 1);
+  });
+</script>
 
 <style>
   .gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    gap: 1rem;
+    columns: 3 220px;
+    column-gap: 1rem;
   }
-  .gallery img {
+  .thumb {
+    display: block;
     width: 100%;
-    aspect-ratio: 1;
-    object-fit: cover;
+    margin: 0 0 1rem;
+    padding: 0;
+    border: 0;
+    border-radius: 12px;
+    background: none;
+    cursor: zoom-in;
+    break-inside: avoid;
+    overflow: hidden;
+    box-shadow: 0 6px 18px rgba(139, 42, 71, 0.1);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .thumb:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 26px rgba(139, 42, 71, 0.2);
+  }
+  .thumb img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transition: transform 0.4s ease;
+  }
+  .thumb:hover img {
+    transform: scale(1.04);
+  }
+
+  .lightbox {
+    max-width: none;
+    max-height: none;
+    width: 100vw;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: rgba(40, 20, 28, 0.92);
+    align-items: center;
+    justify-content: center;
+  }
+  .lightbox[open] {
+    display: flex;
+  }
+  .lightbox::backdrop {
+    background: transparent;
+  }
+  .lightbox img {
+    max-width: 90vw;
+    max-height: 88vh;
+    border-radius: 8px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  }
+  .close,
+  .nav {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    border: 0;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  .close:hover,
+  .nav:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+  .close {
+    top: 1rem;
+    right: 1rem;
+  }
+  .nav {
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  .prev {
+    left: 1rem;
+  }
+  .next {
+    right: 1rem;
   }
 </style>
